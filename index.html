@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dino Run ｜ 小恐龍無限跑酷。休閒單頁跑酷小遊戲，跳躍閃避仙人掌障礙物，挑戰最高分！" />
+  <title>Dino Run ｜ 小恐龍無限跑酷</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       DINO RUN — 小恐龍無限跑酷 單一 HTML 整合樣式
+       ========================================================================== */
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'Space Grotesk', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+      --color-bg: #f8fafc;
+      --color-text-main: #0f172a;
+      --color-text-muted: #64748b;
+      --color-border: #e2e8f0;
+      --color-border-focus: #3b82f6;
+
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-card: 0 20px 35px -10px rgb(15 23 42 / 0.09), 0 1px 3px 0 rgb(0 0 0 / 0.05);
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(186, 230, 253, 0.25) 0%, transparent 65%),
+        linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+      color: var(--color-text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      user-select: none;
+    }
+
+    .game-wrapper {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 36px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 8px 4px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #0ea5e9, #10b981);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .btn-icon {
+      background: #ffffff;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-icon:hover {
+      color: var(--color-text-main);
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .btn-icon:active {
+      transform: translateY(0);
+    }
+
+    /* Main Area */
+    .game-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-viewport-container {
+      position: relative;
+      width: 100%;
+      background: #bae6fd;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      border: 2px solid #e0f2fe;
+      cursor: pointer;
+      touch-action: manipulation;
+      aspect-ratio: 800 / 360;
+      max-height: 440px;
+    }
+
+    .game-viewport-container:focus-visible {
+      outline: 3px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+
+    .game-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Overlays */
+    .overlay-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(2.5px);
+      z-index: 10;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay-idle {
+      background: rgba(15, 23, 42, 0.28);
+    }
+
+    .overlay-gameover {
+      background: rgba(15, 23, 42, 0.42);
+      display: none; /* hidden until game over */
+    }
+
+    .overlay-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 25px 40px -12px rgba(15, 23, 42, 0.25);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .animate-pop {
+      animation: popIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .pulse-dino-badge {
+      width: 58px;
+      height: 58px;
+      border-radius: var(--radius-full);
+      background: #ecfdf5;
+      border: 2px solid #a7f3d0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .overlay-heading {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .overlay-desc {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+
+    .key-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e293b;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Game Over */
+    .gameover-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #ef4444;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      margin-bottom: 10px;
+    }
+
+    .gameover-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 18px;
+    }
+
+    .score-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 22px;
+    }
+
+    .score-summary-item {
+      background: #f8fafc;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-value {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .summary-value.current {
+      color: #0f172a;
+    }
+
+    .summary-value.high {
+      color: #d97706;
+    }
+
+    .gameover-actions {
+      width: 100%;
+    }
+
+    .restart-hint {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 12px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 20px;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #0f172a;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.16s ease;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+    }
+
+    .btn-primary:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-restart {
+      background: #16a34a;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+    }
+
+    .btn-restart:hover {
+      background: #15803d;
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Footer Bar */
+    .game-footer-bar {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: #ffffff;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .instructions-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    .instruction-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .mobile-jump-button {
+      display: none;
+      background: #0f172a;
+      color: #ffffff;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.2);
+      touch-action: manipulation;
+    }
+
+    .mobile-jump-button:active {
+      transform: scale(0.96);
+      background: #334155;
+    }
+
+    .game-page-footer {
+      margin-top: auto;
+      padding-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    @media (max-width: 680px) {
+      .game-wrapper {
+        padding: 16px 12px 24px;
+      }
+      .game-viewport-container {
+        border-radius: var(--radius-md);
+      }
+      .game-footer-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px;
+      }
+      .instructions-box {
+        justify-content: center;
+        text-align: center;
+        font-size: 12px;
+        flex-wrap: wrap;
+      }
+      .mobile-jump-button {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <!-- Top Header -->
+    <header class="game-header">
+      <div class="brand-group">
+        <div class="brand-icon">
+          <!-- Sparkles SVG -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            <path d="M5 3v4"/>
+            <path d="M19 17v4"/>
+            <path d="M3 5h4"/>
+            <path d="M17 19h4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">DINO RUN</h1>
+          <p class="brand-subtitle">小恐龍無限跑酷 ｜ 休閒小遊戲</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <button type="button" class="btn-icon" id="soundBtn" title="靜音 / 開啟音效" aria-label="切換音效">
+          <!-- Volume2 Icon -->
+          <svg id="iconVolume" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Viewport -->
+    <main class="game-main">
+      <div class="game-viewport-container" id="viewport" role="button" tabindex="0" aria-label="點擊跳躍">
+        <canvas id="gameCanvas" width="800" height="360" class="game-canvas"></canvas>
+
+        <!-- Start Overlay -->
+        <div class="overlay-screen overlay-idle" id="startOverlay">
+          <div class="overlay-card">
+            <div class="pulse-dino-badge">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#10b981" stroke="#10b981" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+            <h2 class="overlay-heading">準備好開始了嗎？</h2>
+            <p class="overlay-desc">
+              按下 <kbd class="key-badge">空白鍵 Space</kbd> 或點擊畫面即可起跳跑酷！
+            </p>
+            <button type="button" class="btn-primary" id="startBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              立即開始遊戲
+            </button>
+          </div>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div class="overlay-screen overlay-gameover" id="gameOverOverlay">
+          <div class="overlay-card animate-pop">
+            <div class="gameover-tag">GAME OVER</div>
+            <h2 class="gameover-title">恐龍碰到了仙人掌！</h2>
+
+            <div class="score-summary-grid">
+              <div class="score-summary-item">
+                <span class="summary-label">本次得分</span>
+                <span class="summary-value current" id="finalScore">0</span>
+              </div>
+              <div class="score-summary-item">
+                <span class="summary-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                  </svg>
+                  歷史最高
+                </span>
+                <span class="summary-value high" id="highScoreDisplay">0</span>
+              </div>
+            </div>
+
+            <div class="gameover-actions">
+              <button type="button" class="btn-primary btn-restart" id="restartBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                重新開始 (Restart)
+              </button>
+            </div>
+            <p class="restart-hint">提示：也可按空白鍵快速重新開始</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Tips -->
+      <div class="game-footer-bar">
+        <div class="instructions-box">
+          <span class="instruction-badge">操作提示</span>
+          <span class="instruction-text">
+            鍵盤 <kbd class="key-badge">Space</kbd> 或 <kbd class="key-badge">↑</kbd> 跳躍 ｜ 滑鼠點擊或觸控畫面亦可操作
+          </span>
+        </div>
+        <button type="button" class="mobile-jump-button" id="mobileJumpBtn">
+          點擊跳躍 (JUMP)
+        </button>
+      </div>
+    </main>
+
+    <!-- Page Footer -->
+    <footer class="game-page-footer">
+      <p>Vibe Coding 新手單頁式小遊戲專案 ｜ Dino Run</p>
+    </footer>
+  </div>
+
+  <!-- Game Logic Script -->
+  <script>
+    (function() {
+      // --- Sound Synthesizer via Web Audio API ---
+      class SoundManager {
+        constructor() {
+          this.ctx = null;
+          this.enabled = true;
+        }
+
+        initContext() {
+          if (!this.ctx && typeof window !== 'undefined') {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        }
+
+        playJump() {
+          if (!this.enabled) return;
+          try {
+            this.initContext();
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(360, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(640, this.ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.12);
+          } catch(e) {}
+        }
+
+        playHit() {
+          if (!this.enabled) return;
+          try {
+            this.initContext();
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(240, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.25);
+          } catch(e) {}
+        }
+
+        playScoreMilestone() {
+          if (!this.enabled) return;
+          try {
+            this.initContext();
+            if (!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(587.33, this.ctx.currentTime);
+            osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.22);
+          } catch(e) {}
+        }
+      }
+
+      const sound = new SoundManager();
+
+      // Elements
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const viewport = document.getElementById('viewport');
+      const startOverlay = document.getElementById('startOverlay');
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      const startBtn = document.getElementById('startBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const mobileJumpBtn = document.getElementById('mobileJumpBtn');
+      const soundBtn = document.getElementById('soundBtn');
+      const finalScoreEl = document.getElementById('finalScore');
+      const highScoreDisplayEl = document.getElementById('highScoreDisplay');
+
+      // Constants
+      const CANVAS_WIDTH = 800;
+      const CANVAS_HEIGHT = 360;
+      const GROUND_Y = 285;
+
+      // State
+      let gameState = 'IDLE'; // 'IDLE', 'PLAYING', 'GAME_OVER'
+      let score = 0;
+      let highScore = 0;
+      let frameCount = 0;
+      let groundOffset = 0;
+      let nextSpawnTime = 80;
+
+      // Try reading local storage high score
+      try {
+        const saved = localStorage.getItem('dino_run_highscore');
+        if (saved) highScore = parseInt(saved, 10) || 0;
+      } catch(e) {}
+
+      // Dinosaur Physics & Geometry
+      const dino = {
+        x: 65,
+        y: GROUND_Y - 50,
+        width: 46,
+        height: 50,
+        velocityY: 0,
+        isGrounded: true,
+        legCycle: 0
+      };
+
+      // Clouds
+      const clouds = [
+        { x: 120, y: 55, scale: 0.9, speed: 0.6 },
+        { x: 380, y: 75, scale: 1.1, speed: 0.8 },
+        { x: 640, y: 45, scale: 0.7, speed: 0.5 }
+      ];
+
+      // Obstacles
+      let obstacles = [];
+
+      // Sound Toggle
+      soundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sound.enabled = !sound.enabled;
+        soundBtn.innerHTML = sound.enabled
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+      });
+
+      // Jump Logic
+      function handleJump() {
+        if (gameState === 'IDLE') {
+          startGame();
+          return;
+        }
+        if (gameState === 'GAME_OVER') {
+          restartGame();
+          return;
+        }
+        if (gameState === 'PLAYING' && dino.isGrounded) {
+          dino.velocityY = -13.2;
+          dino.isGrounded = false;
+          sound.playJump();
+        }
+      }
+
+      // Start Game
+      function startGame() {
+        gameState = 'PLAYING';
+        score = 0;
+        obstacles = [];
+        nextSpawnTime = 80;
+        dino.y = GROUND_Y - dino.height;
+        dino.velocityY = 0;
+        dino.isGrounded = true;
+        startOverlay.style.display = 'none';
+        gameOverOverlay.style.display = 'none';
+        sound.playJump();
+      }
+
+      // Restart Game
+      function restartGame() {
+        gameState = 'PLAYING';
+        score = 0;
+        obstacles = [];
+        nextSpawnTime = 80;
+        dino.y = GROUND_Y - dino.height;
+        dino.velocityY = 0;
+        dino.isGrounded = true;
+        startOverlay.style.display = 'none';
+        gameOverOverlay.style.display = 'none';
+        sound.playJump();
+      }
+
+      // Trigger Game Over
+      function triggerGameOver() {
+        gameState = 'GAME_OVER';
+        sound.playHit();
+
+        if (score > highScore) {
+          highScore = score;
+          try {
+            localStorage.setItem('dino_run_highscore', highScore.toString());
+          } catch(e) {}
+        }
+
+        finalScoreEl.textContent = score;
+        highScoreDisplayEl.textContent = highScore;
+        gameOverOverlay.style.display = 'flex';
+      }
+
+      // Obstacle Spawner
+      function spawnObstacle() {
+        const rand = Math.random();
+        let type = 'single';
+        let width = 24;
+        let height = 42;
+
+        if (rand < 0.45) {
+          type = 'single';
+          width = 24;
+          height = 42;
+        } else if (rand < 0.78) {
+          type = 'double';
+          width = 42;
+          height = 44;
+        } else {
+          type = 'tall';
+          width = 26;
+          height = 54;
+        }
+
+        obstacles.push({
+          x: CANVAS_WIDTH + 20,
+          y: GROUND_Y - height,
+          width,
+          height,
+          type
+        });
+      }
+
+      // Draw Cloud Helper
+      function drawCloud(cx, cy, scale) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(scale, scale);
+        ctx.beginPath();
+        ctx.arc(0, 0, 16, 0, Math.PI * 2);
+        ctx.arc(14, -8, 18, 0, Math.PI * 2);
+        ctx.arc(32, -4, 15, 0, Math.PI * 2);
+        ctx.arc(42, 4, 13, 0, Math.PI * 2);
+        ctx.arc(16, 6, 16, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Draw Cactus Helper
+      function drawCactus(obs) {
+        ctx.save();
+        ctx.fillStyle = '#15803d';
+        ctx.strokeStyle = '#14532d';
+        ctx.lineWidth = 2;
+
+        function roundRect(rx, ry, rw, rh, r) {
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, rw, rh, r);
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        if (obs.type === 'single') {
+          roundRect(obs.x + 8, obs.y, 10, obs.height, 5);
+          roundRect(obs.x, obs.y + 14, 9, 6, 3);
+          roundRect(obs.x, obs.y + 6, 6, 14, 3);
+          roundRect(obs.x + 16, obs.y + 18, 8, 6, 3);
+          roundRect(obs.x + 18, obs.y + 10, 6, 14, 3);
+        } else if (obs.type === 'double') {
+          roundRect(obs.x + 3, obs.y + 6, 10, obs.height - 6, 5);
+          roundRect(obs.x, obs.y + 16, 6, 5, 2);
+          roundRect(obs.x, obs.y + 10, 5, 10, 2);
+
+          roundRect(obs.x + 23, obs.y, 12, obs.height, 5);
+          roundRect(obs.x + 33, obs.y + 16, 8, 6, 3);
+          roundRect(obs.x + 35, obs.y + 8, 6, 14, 3);
+        } else {
+          roundRect(obs.x + 8, obs.y, 11, obs.height, 5);
+          roundRect(obs.x + 1, obs.y + 12, 8, 6, 3);
+          roundRect(obs.x + 1, obs.y + 4, 6, 14, 3);
+          roundRect(obs.x + 17, obs.y + 24, 8, 6, 3);
+          roundRect(obs.x + 19, obs.y + 14, 6, 16, 3);
+        }
+        ctx.restore();
+      }
+
+      // Draw Dinosaur Helper
+      function drawDino() {
+        ctx.save();
+        ctx.translate(dino.x, dino.y);
+        ctx.fillStyle = '#0f172a';
+
+        function fillR(rx, ry, rw, rh, rad) {
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, rw, rh, rad);
+          ctx.fill();
+        }
+
+        // 1. Head & Snout
+        fillR(16, 2, 28, 20, 6);
+        fillR(26, 8, 18, 12, 4);
+
+        // 2. Eye
+        if (gameState === 'GAME_OVER') {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(27, 7);
+          ctx.lineTo(33, 13);
+          ctx.moveTo(33, 7);
+          ctx.lineTo(27, 13);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(30, 9, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(31, 9, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 3. Mouth
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(36, 16, 7, 2);
+        ctx.fillStyle = '#0f172a';
+
+        // 4. Body
+        fillR(12, 16, 20, 22, 6);
+        fillR(4, 20, 14, 16, 5);
+
+        // 5. Tail
+        fillR(0, 24, 8, 8, 3);
+        fillR(-3, 20, 6, 6, 2);
+
+        // 6. Arm
+        fillR(28, 24, 8, 4, 2);
+        fillR(33, 26, 4, 6, 2);
+
+        // 7. Legs
+        if (!dino.isGrounded) {
+          fillR(14, 38, 5, 8, 2);
+          fillR(14, 44, 9, 4, 2);
+          fillR(24, 38, 5, 8, 2);
+          fillR(24, 44, 9, 4, 2);
+        } else if (gameState === 'PLAYING') {
+          if (dino.legCycle === 0) {
+            fillR(24, 38, 5, 12, 2);
+            fillR(24, 48, 9, 3, 2);
+            fillR(14, 38, 5, 8, 2);
+            fillR(12, 44, 7, 3, 2);
+          } else {
+            fillR(16, 38, 5, 12, 2);
+            fillR(16, 48, 9, 3, 2);
+            fillR(24, 38, 5, 8, 2);
+            fillR(26, 44, 7, 3, 2);
+          }
+        } else {
+          fillR(16, 38, 5, 12, 2);
+          fillR(16, 48, 9, 3, 2);
+          fillR(25, 38, 5, 12, 2);
+          fillR(25, 48, 9, 3, 2);
+        }
+
+        ctx.restore();
+      }
+
+      // Draw Top HUD Score
+      function drawHud() {
+        ctx.save();
+        const scoreStr = score.toString().padStart(4, '0');
+        const hiStr = highScore.toString().padStart(4, '0');
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'top';
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(CANVAS_WIDTH - 220, 16, 204, 36, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '600 13px "Space Grotesk", monospace, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('HI: ' + hiStr, CANVAS_WIDTH - 120, 26);
+
+        ctx.font = '700 14px "Space Grotesk", monospace, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText('SCORE: ' + scoreStr, CANVAS_WIDTH - 24, 26);
+        ctx.restore();
+      }
+
+      // Main Loop
+      function loop() {
+        frameCount++;
+
+        // 1. UPDATE
+        if (gameState === 'PLAYING') {
+          const gameSpeed = 5.2 + Math.min(score / 400, 2.5);
+          groundOffset = (groundOffset + gameSpeed) % 40;
+
+          if (frameCount % 5 === 0) {
+            score++;
+            if (score > highScore) highScore = score;
+            if (score % 100 === 0) sound.playScoreMilestone();
+          }
+
+          // Physics
+          dino.velocityY += 0.68;
+          dino.y += dino.velocityY;
+
+          if (dino.y >= GROUND_Y - dino.height) {
+            dino.y = GROUND_Y - dino.height;
+            dino.velocityY = 0;
+            dino.isGrounded = true;
+          }
+
+          if (dino.isGrounded && frameCount % 7 === 0) {
+            dino.legCycle = dino.legCycle === 0 ? 1 : 0;
+          }
+
+          // Spawning
+          nextSpawnTime--;
+          if (nextSpawnTime <= 0) {
+            spawnObstacle();
+            nextSpawnTime = Math.floor(65 + Math.random() * 45);
+          }
+
+          // Move Obstacles & Collision Check
+          for (let i = obstacles.length - 1; i >= 0; i--) {
+            const obs = obstacles[i];
+            obs.x -= gameSpeed;
+
+            if (obs.x + obs.width < -30) {
+              obstacles.splice(i, 1);
+              continue;
+            }
+
+            const dinoBox = {
+              left: dino.x + 8,
+              right: dino.x + dino.width - 6,
+              top: dino.y + 6,
+              bottom: dino.y + dino.height - 2
+            };
+
+            const obsBox = {
+              left: obs.x + 4,
+              right: obs.x + obs.width - 4,
+              top: obs.y + 4,
+              bottom: obs.y + obs.height
+            };
+
+            if (
+              dinoBox.left < obsBox.right &&
+              dinoBox.right > obsBox.left &&
+              dinoBox.top < obsBox.bottom &&
+              dinoBox.bottom > obsBox.top
+            ) {
+              triggerGameOver();
+              break;
+            }
+          }
+        }
+
+        // Cloud drift
+        for (let i = 0; i < clouds.length; i++) {
+          const cloud = clouds[i];
+          const driftSpeed = gameState === 'PLAYING' ? cloud.speed * 1.5 : cloud.speed * 0.5;
+          cloud.x -= driftSpeed;
+          if (cloud.x < -80) {
+            cloud.x = CANVAS_WIDTH + 40;
+            cloud.y = 35 + Math.random() * 60;
+          }
+        }
+
+        // 2. RENDER
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Sky
+        const skyGradient = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+        skyGradient.addColorStop(0, '#bae6fd');
+        skyGradient.addColorStop(0.7, '#e0f2fe');
+        skyGradient.addColorStop(1, '#f0fdf4');
+        ctx.fillStyle = skyGradient;
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Sun
+        ctx.beginPath();
+        ctx.arc(CANVAS_WIDTH - 110, 68, 28, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.45)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(CANVAS_WIDTH - 110, 68, 20, 0, Math.PI * 2);
+        ctx.fillStyle = '#fef08a';
+        ctx.fill();
+
+        // Clouds
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        for (let i = 0; i < clouds.length; i++) {
+          drawCloud(clouds[i].x, clouds[i].y, clouds[i].scale);
+        }
+
+        // Ground
+        ctx.fillStyle = '#ecfdf5';
+        ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y);
+
+        const grassGradient = ctx.createLinearGradient(0, GROUND_Y, 0, GROUND_Y + 12);
+        grassGradient.addColorStop(0, '#22c55e');
+        grassGradient.addColorStop(1, '#16a34a');
+        ctx.fillStyle = grassGradient;
+        ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, 10);
+
+        ctx.strokeStyle = '#15803d';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND_Y);
+        ctx.lineTo(CANVAS_WIDTH, GROUND_Y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#86efac';
+        for (let x = -groundOffset; x < CANVAS_WIDTH; x += 36) {
+          ctx.fillRect(x, GROUND_Y + 14, 14, 2.5);
+        }
+        for (let x = -groundOffset * 0.7; x < CANVAS_WIDTH; x += 52) {
+          ctx.fillRect(x + 12, GROUND_Y + 22, 10, 2);
+        }
+
+        // Obstacles
+        for (let i = 0; i < obstacles.length; i++) {
+          drawCactus(obstacles[i]);
+        }
+
+        // Dino
+        drawDino();
+
+        // HUD
+        drawHud();
+
+        requestAnimationFrame(loop);
+      }
+
+      // Event Listeners
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.key === ' ' || e.code === 'ArrowUp' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          handleJump();
+        }
+      }, { passive: false });
+
+      viewport.addEventListener('click', () => handleJump());
+      startBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startGame();
+      });
+      restartBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        restartGame();
+      });
+      mobileJumpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleJump();
+      });
+
+      // Launch Loop
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
